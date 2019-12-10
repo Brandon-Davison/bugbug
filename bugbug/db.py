@@ -87,8 +87,7 @@ def download_support_file(path, file_name):
 
 # Download and extract databases.
 def download(path, support_files_too=False):
-    # If a DB with the current schema is not available yet, we can't download.
-    if is_old_schema(path):
+    if is_older_version(path):
         return False
 
     zst_path = f"{path}.zst"
@@ -110,6 +109,19 @@ def download(path, support_files_too=False):
     except requests.exceptions.HTTPError:
         logger.info(f"{url} is not yet available to download", exc_info=True)
         return False
+
+
+# Remove DBs when the schema of the downloaded DB is older than the current schema
+# If the db at the new path is an older version
+def is_older_version(path):
+    url = urljoin(DATABASES[path]["url"], f"{os.path.basename(path)}.version")
+    r = requests.get(url)
+    new_version = int(r.text)
+
+    for curr_entry in DATABASES:
+        if new_version < curr_entry:
+            return False
+    return True
 
 
 def last_modified(path):
