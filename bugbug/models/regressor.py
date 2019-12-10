@@ -32,8 +32,11 @@ db.register(
 
 
 class RegressorModel(CommitModel):
-    def __init__(self, lemmatization=False, interpretable=False):
+    def __init__(self, title, summary, lemmatization=False, interpretable=False):
         CommitModel.__init__(self, lemmatization)
+
+        self.title = title
+        self.summary = summary
 
         self.required_dbs.append(BUG_INTRODUCING_COMMITS_DB)
 
@@ -123,7 +126,6 @@ class RegressorModel(CommitModel):
                     continue
 
                 classes[node] = 0
-
         print(
             "{} commits caused regressions".format(
                 sum(1 for label in classes.values() if label == 1)
